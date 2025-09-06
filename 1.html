@@ -1,2560 +1,927 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite NCAAF Analytics Dashboard - Enhanced Edition</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-            color: #ffffff;
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            position: relative;
-        }
-
-        .header h1 {
-            font-size: 3.5rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #00d4ff 0%, #ff6b6b 50%, #4ecdc4 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin: 20px 0 10px 0;
-        }
-
-        .enhanced-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #8a2be2, #ff6b6b);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(255, 107, 107, 0.05) 100%);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            border-color: #00d4ff;
-        }
-
-        .stat-card h3 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #00d4ff;
-            margin-bottom: 5px;
-        }
-
-        .tier-section {
-            margin-bottom: 60px;
-        }
-
-        .tier-header {
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .tier-header h2 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #ffffff;
-        }
-
-        .tier-description {
-            color: #a0a0a0;
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-        }
-
-        .tier-parlays {
-            display: grid;
-            gap: 30px;
-        }
-
-        .parlay-card.enhanced {
-            background: linear-gradient(135deg, rgba(138, 43, 226, 0.15) 0%, rgba(255, 107, 107, 0.08) 100%);
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            border-radius: 20px;
-            padding: 30px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .parlay-card.enhanced:hover {
-            transform: translateY(-5px);
-            border-color: #8a2be2;
-            box-shadow: 0 20px 40px rgba(138, 43, 226, 0.2);
-        }
-
-        .parlay-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .parlay-rank {
-            background: linear-gradient(135deg, #8a2be2, #ff6b6b);
-            color: #ffffff;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: 700;
-        }
-
-        .risk-badge {
-            padding: 8px 16px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 700;
-        }
-
-        .risk-very-low { background: linear-gradient(135deg, #4ecdc4, #44a08d); color: #ffffff; }
-        .risk-low { background: linear-gradient(135deg, #4ecdc4, #44a08d); color: #ffffff; }
-        .risk-medium { background: linear-gradient(135deg, #ffa726, #ff8a50); color: #ffffff; }
-        .risk-medium-high { background: linear-gradient(135deg, #ff8a50, #ff6b6b); color: #ffffff; }
-        .risk-high { background: linear-gradient(135deg, #ff6b6b, #ee5a52); color: #ffffff; }
-        .risk-extreme { background: linear-gradient(135deg, #ee5a52, #c62d42); color: #ffffff; }
-
-        .parlay-metrics {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .metric {
-            background: rgba(255, 255, 255, 0.08);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .metric:hover {
-            background: rgba(255, 255, 255, 0.12);
-            transform: translateY(-2px);
-        }
-
-        .metric-value {
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #ffffff;
-        }
-
-        .metric-label {
-            font-size: 0.8rem;
-            opacity: 0.8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .parlay-legs-enhanced {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .parlay-leg-detailed {
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .parlay-leg-detailed:last-child {
-            border-bottom: none;
-        }
-
-        .leg-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .strength-rating {
-            font-size: 0.9rem;
-            color: #ffd700;
-        }
-
-        .leg-reasoning {
-            font-size: 0.85rem;
-            color: #b0b0b0;
-            margin-bottom: 5px;
-        }
-
-        .leg-narrative {
-            font-size: 0.9rem;
-            color: #d0d0d0;
-            font-style: italic;
-            padding-left: 15px;
-            border-left: 3px solid rgba(0, 212, 255, 0.3);
-        }
-
-        .parlay-strategy {
-            background: rgba(0, 212, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #00d4ff;
-            font-size: 0.95rem;
-        }
-
-        .alert {
-            background: linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .disclaimer {
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            margin-top: 40px;
-            text-align: center;
-            font-size: 0.9rem;
-            border: 1px solid rgba(255, 107, 107, 0.3);
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2.5rem;
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Live NCAAF Elite Analytics Dashboard</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
+
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+                color: #ffffff;
+                line-height: 1.6;
+                min-height: 100vh;
+            }
+
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            .header {
+                text-align: center;
+                margin-bottom: 40px;
+                position: relative;
+            }
+
+            .header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 100px;
+                height: 4px;
+                background: linear-gradient(90deg, #00d4ff, #ff6b6b, #4ecdc4);
+                border-radius: 2px;
+            }
+
+            .header h1 {
+                font-size: 3.5rem;
+                font-weight: 900;
+                background: linear-gradient(135deg, #00d4ff 0%, #ff6b6b 50%, #4ecdc4 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                margin: 20px 0 10px 0;
+                text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            }
+
+            .live-indicator {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: rgba(255, 107, 107, 0.2);
+                border: 1px solid #ff6b6b;
+                padding: 8px 16px;
+                border-radius: 25px;
+                font-size: 0.9rem;
+                margin: 10px 0;
+                animation: pulse 2s infinite;
+            }
+
+            .live-dot {
+                width: 8px;
+                height: 8px;
+                background: #ff6b6b;
+                border-radius: 50%;
+                animation: blink 1s infinite;
+            }
+
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+
+            @keyframes blink {
+                0%, 50% { opacity: 1; }
+                51%, 100% { opacity: 0.3; }
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-bottom: 40px;
+            }
+
+            .stat-card {
+                background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(255, 107, 107, 0.05) 100%);
+                border: 1px solid rgba(0, 212, 255, 0.2);
+                border-radius: 15px;
+                padding: 25px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+                animation: shimmer 3s infinite;
+            }
+
+            @keyframes shimmer {
+                0% { left: -100%; }
+                100% { left: 100%; }
+            }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+                border-color: #00d4ff;
+                box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+            }
+
+            .stat-card h3 {
+                font-size: 2.5rem;
+                font-weight: 800;
+                color: #00d4ff;
+                margin-bottom: 5px;
+            }
+
+            .stat-card p {
+                color: #a0a0a0;
+                font-size: 0.9rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .section {
+                margin-bottom: 50px;
+            }
+
+            .section h2 {
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 25px;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .section h2::before {
+                content: '';
+                width: 4px;
+                height: 30px;
+                background: linear-gradient(135deg, #00d4ff, #ff6b6b);
+                border-radius: 2px;
+            }
+
+            .games-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                gap: 25px;
+            }
+
+            .game-card {
+                background: linear-gradient(135deg, rgba(30, 30, 30, 0.8) 0%, rgba(40, 40, 40, 0.6) 100%);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                padding: 30px;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.4s ease;
+                backdrop-filter: blur(10px);
+            }
+
+            .game-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #00d4ff, #ff6b6b, #4ecdc4);
+            }
+
+            .game-card:hover {
+                transform: translateY(-8px);
+                border-color: rgba(0, 212, 255, 0.5);
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            }
+
+            .game-card h3 {
+                font-size: 1.3rem;
+                font-weight: 700;
+                margin-bottom: 20px;
+                text-align: center;
+                color: #ffffff;
+            }
+
+            .game-info {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-bottom: 15px;
+                font-size: 0.9rem;
+            }
+
+            .game-info div {
+                padding: 8px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 6px;
+            }
+
+            .weather-info {
+                background: rgba(255, 255, 255, 0.08);
+                padding: 15px;
+                border-radius: 10px;
+                text-align: center;
+                font-size: 0.85rem;
+                color: #b0b0b0;
+            }
+
+            .individual-bets {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 20px;
+            }
+
+            .bet-card {
+                background: linear-gradient(135deg, rgba(78, 205, 196, 0.1) 0%, rgba(255, 107, 107, 0.05) 100%);
+                border: 1px solid rgba(78, 205, 196, 0.3);
+                border-radius: 15px;
+                padding: 25px;
+                transition: all 0.3s ease;
+            }
+
+            .bet-card:hover {
+                transform: translateY(-5px);
+                border-color: #4ecdc4;
+                box-shadow: 0 15px 40px rgba(78, 205, 196, 0.2);
+            }
+
+            .bet-card h4 {
+                color: #4ecdc4;
+                margin-bottom: 15px;
+                font-size: 1.1rem;
+            }
+
+            .bet-recommendation {
+                background: rgba(78, 205, 196, 0.2);
+                padding: 12px;
+                border-radius: 8px;
+                margin: 10px 0;
+                border-left: 4px solid #4ecdc4;
+            }
+
+            .confidence-bar {
+                width: 100%;
+                height: 8px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 4px;
+                margin: 10px 0;
+                overflow: hidden;
+            }
+
+            .confidence-fill {
+                height: 100%;
+                background: linear-gradient(90deg, #ff6b6b, #ffa726, #4ecdc4);
+                transition: width 0.8s ease;
+            }
+
+            .parlays-container {
+                display: grid;
+                gap: 25px;
+            }
+
+            .parlay-card {
+                background: linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(255, 107, 107, 0.1) 100%);
+                border: 1px solid rgba(138, 43, 226, 0.4);
+                border-radius: 20px;
+                padding: 30px;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .parlay-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #8a2be2, #ff6b6b);
+            }
+
+            .parlay-card:hover {
+                transform: translateY(-5px);
+            }
+
+            .parlay-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 25px;
+            }
+
+            .parlay-rank {
+                background: linear-gradient(135deg, #8a2be2, #ff6b6b);
+                color: #ffffff;
+                padding: 10px 20px;
+                border-radius: 25px;
+                font-size: 1.1rem;
+                font-weight: 700;
+            }
+
+            .risk-badge {
+                padding: 6px 12px;
+                border-radius: 15px;
+                font-size: 0.8rem;
+                font-weight: 700;
+            }
+
+            .risk-low { background: linear-gradient(135deg, #4ecdc4, #44a08d); color: #ffffff; }
+            .risk-medium { background: linear-gradient(135deg, #ffa726, #ff8a50); color: #ffffff; }
+            .risk-medium-high { background: linear-gradient(135deg, #ff8a50, #ff6b6b); color: #ffffff; }
+            .risk-high { background: linear-gradient(135deg, #ff6b6b, #ee5a52); color: #ffffff; }
 
             .parlay-metrics {
-                grid-template-columns: repeat(2, 1fr);
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 15px;
+                margin-bottom: 20px;
             }
 
-            .leg-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
+            .metric {
+                background: rgba(255, 255, 255, 0.1);
+                padding: 15px;
+                border-radius: 10px;
+                text-align: center;
             }
-        }
 
-        .fade-in {
-            animation: fadeInUp 0.8s ease-out forwards;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
+            .metric-value {
+                font-size: 1.4rem;
+                font-weight: bold;
+                margin-bottom: 5px;
+                color: #ffffff;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+
+            .metric-label {
+                font-size: 0.8rem;
+                opacity: 0.8;
+                text-transform: uppercase;
+                letter-spacing: 1px;
             }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Header Section -->
-        <div class="header fade-in">
-            <h1>ELITE NCAAF ANALYTICS</h1>
-            <div class="enhanced-badge">ENHANCED REASONING ENGINE</div>
-            <p style="color: #a0a0a0; margin-top: 10px;">Advanced AI Analysis • Detailed Bet Justification • Multi-Tier Strategy</p>
-            <p style="color: #a0a0a0; font-size: 0.9rem;">Last updated: 2025-09-06 14:46:16</p>
-        </div>
 
-        <!-- Stats Overview -->
-        <div class="stats-grid fade-in">
-            <div class="stat-card">
-                <h3>26</h3>
-                <p>Total Strategies</p>
-            </div>
-            <div class="stat-card">
-                <h3>642x</h3>
-                <p>Max Payout</p>
-            </div>
-            <div class="stat-card">
-                <h3>5</h3>
-                <p>Strategy Tiers</p>
-            </div>
-            <div class="stat-card">
-                <h3>AI</h3>
-                <p>Reasoning Engine</p>
-            </div>
-        </div>
-
-        <!-- Alert Section -->
-        <div class="alert fade-in">
-            ⚠️ ENHANCED ANALYSIS - This dashboard provides detailed reasoning for every recommendation. Educational purposes only.
-        </div>
-
-        <!-- Tier Sections -->
-        
-            <div class="tier-section">
-                <div class="tier-header">
-                    <h2>🛡️ Conservative Plays</h2>
-                    <p class="tier-description">2-3 legs, highest confidence</p>
-                </div>
-                <div class="tier-parlays">
-                    
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#1 CONSERVATIVE PLAYS</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">6.0x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+500%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">3.0</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> This 3-leg conservative approach focuses on highest-probability outcomes with strong analytical backing.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#2 CONSERVATIVE PLAYS</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">6.0x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+500%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">3.0</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> This 3-leg conservative approach focuses on highest-probability outcomes with strong analytical backing.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#3 CONSERVATIVE PLAYS</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">6.0x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+500%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">3.0</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">East benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> This 3-leg conservative approach focuses on highest-probability outcomes with strong analytical backing.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#4 CONSERVATIVE PLAYS</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">6.0x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+500%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">3.0</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Miami (OH) RedHawks vs Rutgers Scarlet Knights: Miami (OH) RedHawks +14.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Miami benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> This 3-leg conservative approach focuses on highest-probability outcomes with strong analytical backing.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#5 CONSERVATIVE PLAYS</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">6.0x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+500%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">3.0</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: UNDER 62.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">62.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> This 3-leg conservative approach focuses on highest-probability outcomes with strong analytical backing.
-                    </div>
-                </div>
-                
-                </div>
-            </div>
-            
-            <div class="tier-section">
-                <div class="tier-header">
-                    <h2>⚖️ Balanced Strategy</h2>
-                    <p class="tier-description">3-4 legs, optimal risk/reward</p>
-                </div>
-                <div class="tier-parlays">
-                    
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#1 BALANCED STRATEGY</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">12.3x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+1128%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">2.25</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> A 4-leg strategy balancing solid value opportunities with manageable risk exposure.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#2 BALANCED STRATEGY</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">12.3x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+1128%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">2.25</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">East benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> A 4-leg strategy balancing solid value opportunities with manageable risk exposure.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#3 BALANCED STRATEGY</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">12.3x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+1128%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">2.25</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Miami (OH) RedHawks vs Rutgers Scarlet Knights: Miami (OH) RedHawks +14.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Miami benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> A 4-leg strategy balancing solid value opportunities with manageable risk exposure.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#4 BALANCED STRATEGY</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">12.3x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+1128%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">2.25</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Fresno State Bulldogs vs Oregon State Beavers: Fresno State Bulldogs +1.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Fresno benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> A 4-leg strategy balancing solid value opportunities with manageable risk exposure.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#5 BALANCED STRATEGY</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">12.3x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+1128%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">2.25</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Fresno State Bulldogs vs Oregon State Beavers: OVER 44.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">44.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> A 4-leg strategy balancing solid value opportunities with manageable risk exposure.
-                    </div>
-                </div>
-                
-                </div>
-            </div>
-            
-            <div class="tier-section">
-                <div class="tier-header">
-                    <h2>🚀 Aggressive Plays</h2>
-                    <p class="tier-description">4-6 legs, higher payouts</p>
-                </div>
-                <div class="tier-parlays">
-                    
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#1 AGGRESSIVE PLAYS</div>
-                        <div class="risk-badge risk-medium">MEDIUM RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">47.4x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+4641%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">1.2</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">East benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Miami (OH) RedHawks vs Rutgers Scarlet Knights: Miami (OH) RedHawks +14.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Miami benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> This 6-leg aggressive play targets multiple value spots for enhanced payout potential.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#2 AGGRESSIVE PLAYS</div>
-                        <div class="risk-badge risk-medium">MEDIUM RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">47.4x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+4641%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">1.2</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">East benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Fresno State Bulldogs vs Oregon State Beavers: Fresno State Bulldogs +1.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Fresno benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> This 6-leg aggressive play targets multiple value spots for enhanced payout potential.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#3 AGGRESSIVE PLAYS</div>
-                        <div class="risk-badge risk-medium">MEDIUM RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">47.4x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+4641%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">1.2</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">East benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Fresno State Bulldogs vs Oregon State Beavers: OVER 44.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">44.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> This 6-leg aggressive play targets multiple value spots for enhanced payout potential.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#4 AGGRESSIVE PLAYS</div>
-                        <div class="risk-badge risk-medium">MEDIUM RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">47.4x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+4641%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">1.2</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">East benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Lindenwood Lions vs App State Mountaineers: Lindenwood Lions +31.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Lindenwood benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> This 6-leg aggressive play targets multiple value spots for enhanced payout potential.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#5 AGGRESSIVE PLAYS</div>
-                        <div class="risk-badge risk-medium">MEDIUM RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">47.4x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+4641%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">1.2</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">East benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Lindenwood Lions vs App State Mountaineers: UNDER 55.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">55.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> This 6-leg aggressive play targets multiple value spots for enhanced payout potential.
-                    </div>
-                </div>
-                
-                </div>
-            </div>
-            
-            <div class="tier-section">
-                <div class="tier-header">
-                    <h2>💎 Premium Analysis</h2>
-                    <p class="tier-description">Expert-level insights</p>
-                </div>
-                <div class="tier-parlays">
-                    
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#1 PREMIUM ANALYSIS</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">24.4x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+2335%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">3.75</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">East benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> Premium 5-leg selection based on comprehensive statistical analysis and favorable conditions.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#2 PREMIUM ANALYSIS</div>
-                        <div class="risk-badge risk-low">LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">24.4x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+2335%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">3.38</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Miami (OH) RedHawks vs Rutgers Scarlet Knights: Miami (OH) RedHawks +14.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Miami benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> Premium 5-leg selection based on comprehensive statistical analysis and favorable conditions.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#3 PREMIUM ANALYSIS</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">24.4x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+2335%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">3.75</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Fresno State Bulldogs vs Oregon State Beavers: Fresno State Bulldogs +1.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Fresno benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> Premium 5-leg selection based on comprehensive statistical analysis and favorable conditions.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#4 PREMIUM ANALYSIS</div>
-                        <div class="risk-badge risk-very-low">VERY LOW RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">24.4x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+2335%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">3.75</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Fresno State Bulldogs vs Oregon State Beavers: OVER 44.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">44.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> Premium 5-leg selection based on comprehensive statistical analysis and favorable conditions.
-                    </div>
-                </div>
-                
-                </div>
-            </div>
-            
-            <div class="tier-section">
-                <div class="tier-header">
-                    <h2>🎰 Lottery Tickets</h2>
-                    <p class="tier-description">Maximum payout potential</p>
-                </div>
-                <div class="tier-parlays">
-                    
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#1 LOTTERY TICKETS</div>
-                        <div class="risk-badge risk-extreme">EXTREME RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">642.1x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+64108%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">0.25</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">East benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Miami (OH) RedHawks vs Rutgers Scarlet Knights: Miami (OH) RedHawks +14.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Miami benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Fresno State Bulldogs vs Oregon State Beavers: Fresno State Bulldogs +1.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Fresno benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Lindenwood Lions vs App State Mountaineers: Lindenwood Lions +31.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Lindenwood benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Texas State Bobcats vs UTSA Roadrunners: Texas State Bobcats +4.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Texas benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 North Texas Mean Green vs Western Michigan Broncos: North Texas Mean Green -11.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-11.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> High-risk 10-leg lottery play with massive payout potential for experienced bettors only.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#2 LOTTERY TICKETS</div>
-                        <div class="risk-badge risk-extreme">EXTREME RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">642.1x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+64108%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">0.25</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">East benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Miami (OH) RedHawks vs Rutgers Scarlet Knights: Miami (OH) RedHawks +14.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Miami benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Fresno State Bulldogs vs Oregon State Beavers: Fresno State Bulldogs +1.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Fresno benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Lindenwood Lions vs App State Mountaineers: Lindenwood Lions +31.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Lindenwood benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Texas State Bobcats vs UTSA Roadrunners: Texas State Bobcats +4.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Texas benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Saint Francis Red Flash vs Buffalo Bulls: Saint Francis Red Flash +36.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Saint benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> High-risk 10-leg lottery play with massive payout potential for experienced bettors only.
-                    </div>
-                </div>
-                
-                <div class="parlay-card enhanced">
-                    <div class="parlay-header">
-                        <div class="parlay-rank">#3 LOTTERY TICKETS</div>
-                        <div class="risk-badge risk-extreme">EXTREME RISK</div>
-                    </div>
-
-                    <div class="parlay-metrics">
-                        <div class="metric">
-                            <div class="metric-value">642.1x</div>
-                            <div class="metric-label">Payout</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">100%</div>
-                            <div class="metric-label">Confidence</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">+64108%</div>
-                            <div class="metric-label">Expected ROI</div>
-                        </div>
-                        <div class="metric">
-                            <div class="metric-value">0.25</div>
-                            <div class="metric-label">Rec. Units</div>
-                        </div>
-                    </div>
-
-                    <div class="parlay-legs-enhanced">
-                        
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Idaho State Bengals vs New Mexico Lobos: Idaho State Bengals +17.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Idaho benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Grambling benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Oklahoma benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Ole Miss Rebels vs Kentucky Wildcats: Ole Miss Rebels -8.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">-8.5 benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">East benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Miami (OH) RedHawks vs Rutgers Scarlet Knights: Miami (OH) RedHawks +14.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Miami benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Fresno State Bulldogs vs Oregon State Beavers: Fresno State Bulldogs +1.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Fresno benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Lindenwood Lions vs App State Mountaineers: Lindenwood Lions +31.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Lindenwood benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Texas State Bobcats vs UTSA Roadrunners: Texas State Bobcats +4.5</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Texas benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    <div class="parlay-leg-detailed">
-                        <div class="leg-header">
-                            <strong>🏈 Bryant Bulldogs vs Massachusetts Minutemen: Bryant Bulldogs +15.0</strong>
-                            <span class="strength-rating">⭐⭐⭐⭐⭐</span>
-                        </div>
-                        <div class="leg-reasoning">
-                            <strong>Key Factor:</strong> Significant line value detected (80.00% edge)
-                            <br><strong>Confidence:</strong> 100% | <strong>Value:</strong> 0.800
-                        </div>
-                        <div class="leg-narrative">Bryant benefits from significant line value detected (80.00% edge), creating a favorable betting opportunity</div>
-                    </div>
-                    
-                    </div>
-
-                    <div class="parlay-strategy">
-                        <strong>Strategy:</strong> High-risk 10-leg lottery play with massive payout potential for experienced bettors only.
-                    </div>
-                </div>
-                
-                </div>
-            </div>
-            
-
-        <!-- Disclaimer -->
-        <div class="disclaimer">
-            <p><strong>CRITICAL DISCLAIMER:</strong> This enhanced analysis tool is designed for educational and entertainment purposes only. Sports betting involves substantial financial risk and can lead to gambling addiction.</p>
-            <p style="margin-top: 15px;"><strong>Important:</strong> No algorithm can guarantee profitable betting outcomes. The detailed reasoning provided is analytical in nature and should not be considered as financial advice.</p>
-            <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.7;">If you have a gambling problem, seek help immediately. Generated: 2025-09-06 14:46:16</p>
-        </div>
-    </div>
-
-    <script>
-        // Enhanced interactivity
-        document.querySelectorAll('.parlay-card, .metric').forEach(element => {
-            element.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-5px)';
-            });
-
-            element.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-            });
-        });
-
-        // Animate elements on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
+            .parlay-legs {
+                background: rgba(255, 255, 255, 0.05);
+                padding: 20px;
+                border-radius: 12px;
+                margin-bottom: 15px;
+            }
+
+            .parlay-leg {
+                padding: 10px 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                font-size: 0.95rem;
+            }
+
+            .parlay-leg:last-child {
+                border-bottom: none;
+            }
+
+            .weather-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+            }
+
+            .weather-card {
+                background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+                color: white;
+                padding: 25px;
+                border-radius: 15px;
+                text-align: center;
+                transition: all 0.3s ease;
+            }
+
+            .weather-card:hover {
+                transform: translateY(-5px);
+            }
+
+            .weather-card h4 {
+                margin-bottom: 15px;
+                font-size: 1.2rem;
+            }
+
+            .weather-details {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                font-size: 0.9rem;
+            }
+
+            .alert {
+                background: linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%);
+                color: white;
+                padding: 20px;
+                border-radius: 15px;
+                margin-bottom: 30px;
+                text-align: center;
+                font-weight: bold;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            .disclaimer {
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 25px;
+                border-radius: 15px;
+                margin-top: 40px;
+                text-align: center;
+                font-size: 0.9rem;
+                border: 1px solid rgba(255, 107, 107, 0.3);
+            }
+
+            @media (max-width: 768px) {
+                .header h1 {
+                    font-size: 2.5rem;
                 }
-            });
-        }, observerOptions);
 
-        document.querySelectorAll('.tier-section').forEach(section => {
-            section.style.opacity = '0';
-            section.style.transform = 'translateY(30px)';
-            section.style.transition = 'all 0.6s ease';
-            observer.observe(section);
-        });
+                .games-grid,
+                .individual-bets {
+                    grid-template-columns: 1fr;
+                }
 
-        // Add click handlers for detailed analysis
-        document.querySelectorAll('.parlay-leg-detailed').forEach(leg => {
-            leg.addEventListener('click', function() {
-                const narrative = this.querySelector('.leg-narrative');
-                narrative.style.display = narrative.style.display === 'none' ? 'block' : 'none';
+                .parlay-metrics {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+
+            .fade-in {
+                animation: fadeInUp 0.8s ease-out forwards;
+            }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Header Section -->
+            <div class="header fade-in">
+                <h1>ELITE NCAAF ANALYTICS</h1>
+                <div class="live-indicator">
+                    <div class="live-dot"></div>
+                    LIVE DATA FEED
+                </div>
+                <p style="color: #a0a0a0; margin-top: 10px;">Real-time analysis • Last updated: 2025-09-06 15:21:18</p>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid fade-in">
+                <div class="stat-card">
+                    <h3>79</h3>
+                    <p>Live Games</p>
+                </div>
+                <div class="stat-card">
+                    <h3>12.3x</h3>
+                    <p>Best Payout</p>
+                </div>
+                <div class="stat-card">
+                    <h3>100%</h3>
+                    <p>Top Confidence</p>
+                </div>
+                <div class="stat-card">
+                    <h3>2</h3>
+                    <p>Weather Alerts</p>
+                </div>
+            </div>
+
+            <!-- Alert Section -->
+            <div class="alert fade-in">
+                ⚠️ LIVE ANALYSIS - Data refreshes every 30 minutes. Always verify odds before placing bets.
+            </div>
+
+            <!-- Today's Games Section -->
+            <div class="section fade-in">
+                <h2>Live Games & Current Odds</h2>
+                <div class="games-grid">
+                    
+            <div class="game-card">
+                <h3>San José State Spartans vs Texas Longhorns</h3>
+                <div class="game-info">
+                    <div><strong>Time:</strong> 6:07 - 4th Quarter</div>
+                    <div><strong>Venue:</strong> DKR-Texas Memorial Stadium...</div>
+                    <div><strong>Spread:</strong> TBD</div>
+                    <div><strong>Total:</strong> TBD</div>
+                </div>
+                <div class="weather-info">
+                    ☁️ Austin, TX: 87°F, 10mph winds, Partly Cloudy
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <h3>Illinois Fighting Illini vs Duke Blue Devils</h3>
+                <div class="game-info">
+                    <div><strong>Time:</strong> 8:16 - 4th Quarter</div>
+                    <div><strong>Venue:</strong> Wallace Wade Stadium...</div>
+                    <div><strong>Spread:</strong> TBD</div>
+                    <div><strong>Total:</strong> TBD</div>
+                </div>
+                <div class="weather-info">
+                    ☁️ Durham, NC: 78°F, 10mph winds, Partly Cloudy
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <h3>East Texas A&M Lions vs Florida State Seminoles</h3>
+                <div class="game-info">
+                    <div><strong>Time:</strong> Final</div>
+                    <div><strong>Venue:</strong> Doak Campbell Stadium...</div>
+                    <div><strong>Spread:</strong> TBD</div>
+                    <div><strong>Total:</strong> TBD</div>
+                </div>
+                <div class="weather-info">
+                    🌧️ Tallahassee, FL: 86°F, 11mph winds, Scattered Thunderstorms
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <h3>Iowa Hawkeyes vs Iowa State Cyclones</h3>
+                <div class="game-info">
+                    <div><strong>Time:</strong> 1:52 - 4th Quarter</div>
+                    <div><strong>Venue:</strong> Jack Trice Stadium...</div>
+                    <div><strong>Spread:</strong> TBD</div>
+                    <div><strong>Total:</strong> TBD</div>
+                </div>
+                <div class="weather-info">
+                    ☁️ Ames, IA: 90°F, 6mph winds, Partly Cloudy
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <h3>Baylor Bears vs SMU Mustangs</h3>
+                <div class="game-info">
+                    <div><strong>Time:</strong> 2:23 - 4th Quarter</div>
+                    <div><strong>Venue:</strong> Gerald J. Ford Stadium...</div>
+                    <div><strong>Spread:</strong> TBD</div>
+                    <div><strong>Total:</strong> TBD</div>
+                </div>
+                <div class="weather-info">
+                    ☁️ Dallas, TX: 89°F, 9mph winds, Partly Cloudy
+                </div>
+            </div>
+            
+            <div class="game-card">
+                <h3>Kennesaw State Owls vs Indiana Hoosiers</h3>
+                <div class="game-info">
+                    <div><strong>Time:</strong> End of 4th Quarter</div>
+                    <div><strong>Venue:</strong> Memorial Stadium (Bloomington,...</div>
+                    <div><strong>Spread:</strong> TBD</div>
+                    <div><strong>Total:</strong> TBD</div>
+                </div>
+                <div class="weather-info">
+                    ☁️ Bloomington, IN: 66°F, 15mph winds, Cloudy
+                </div>
+            </div>
+            
+                </div>
+            </div>
+
+            <!-- Weather Conditions Section -->
+            <div class="section fade-in">
+                <h2>Weather Impact Analysis</h2>
+                <div class="weather-grid">
+                    
+            <div class="weather-card">
+                <h4>Houston, TX</h4>
+                <div class="weather-details">
+                    <div>Temperature: 88°F</div>
+                    <div>Wind: 6mph</div>
+                    <div>Humidity: 75%</div>
+                    <div>Impact: Minimal</div>
+                </div>
+            </div>
+            
+            <div class="weather-card">
+                <h4>Conway, SC</h4>
+                <div class="weather-details">
+                    <div>Temperature: 86°F</div>
+                    <div>Wind: 10mph</div>
+                    <div>Humidity: 64%</div>
+                    <div>Impact: Minimal</div>
+                </div>
+            </div>
+            
+            <div class="weather-card">
+                <h4>Boone, NC</h4>
+                <div class="weather-details">
+                    <div>Temperature: 80°F</div>
+                    <div>Wind: 11mph</div>
+                    <div>Humidity: 74%</div>
+                    <div>Impact: Minimal</div>
+                </div>
+            </div>
+            
+            <div class="weather-card">
+                <h4>Madison, WI</h4>
+                <div class="weather-details">
+                    <div>Temperature: 90°F</div>
+                    <div>Wind: 9mph</div>
+                    <div>Humidity: 60%</div>
+                    <div>Impact: Minimal</div>
+                </div>
+            </div>
+            
+                </div>
+            </div>
+
+            <!-- Top Individual Bets Section -->
+            <div class="section fade-in">
+                <h2>Top Value Recommendations</h2>
+                <div class="individual-bets">
+                    
+            <div class="bet-card">
+                <h4>Grambling Tigers vs Ohio State Buckeyes</h4>
+                <div class="bet-recommendation">
+                    <strong>Recommended:</strong> Grambling Tigers +55.0
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: 100%"></div>
+                </div>
+                <p><strong>Confidence:</strong> 100.0% | <strong>Value:</strong> 0.800</p>
+                <p><strong>Reasoning:</strong> Significant value vs market line</p>
+            </div>
+            
+            <div class="bet-card">
+                <h4>Grambling Tigers vs Ohio State Buckeyes</h4>
+                <div class="bet-recommendation">
+                    <strong>Recommended:</strong> UNDER 62.5
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: 100%"></div>
+                </div>
+                <p><strong>Confidence:</strong> 100.0% | <strong>Value:</strong> 0.800</p>
+                <p><strong>Reasoning:</strong> Significant value vs market line</p>
+            </div>
+            
+            <div class="bet-card">
+                <h4>Oklahoma State Cowboys vs Oregon Ducks</h4>
+                <div class="bet-recommendation">
+                    <strong>Recommended:</strong> Oklahoma State Cowboys +28.5
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: 100%"></div>
+                </div>
+                <p><strong>Confidence:</strong> 100.0% | <strong>Value:</strong> 0.800</p>
+                <p><strong>Reasoning:</strong> Significant value vs market line</p>
+            </div>
+            
+            <div class="bet-card">
+                <h4>Ole Miss Rebels vs Kentucky Wildcats</h4>
+                <div class="bet-recommendation">
+                    <strong>Recommended:</strong> Ole Miss Rebels -8.5
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: 100%"></div>
+                </div>
+                <p><strong>Confidence:</strong> 100.0% | <strong>Value:</strong> 0.800</p>
+                <p><strong>Reasoning:</strong> Significant value vs market line</p>
+            </div>
+            
+            <div class="bet-card">
+                <h4>East Tennessee State Buccaneers vs Tennessee Volunteers</h4>
+                <div class="bet-recommendation">
+                    <strong>Recommended:</strong> East Tennessee State Buccaneers +40.0
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: 100%"></div>
+                </div>
+                <p><strong>Confidence:</strong> 100.0% | <strong>Value:</strong> 0.800</p>
+                <p><strong>Reasoning:</strong> Significant value vs market line</p>
+            </div>
+            
+            <div class="bet-card">
+                <h4>Miami (OH) RedHawks vs Rutgers Scarlet Knights</h4>
+                <div class="bet-recommendation">
+                    <strong>Recommended:</strong> Miami (OH) RedHawks +15.5
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: 100%"></div>
+                </div>
+                <p><strong>Confidence:</strong> 100.0% | <strong>Value:</strong> 0.800</p>
+                <p><strong>Reasoning:</strong> Significant value vs market line</p>
+            </div>
+            
+                </div>
+            </div>
+
+            <!-- Top Parlays Section -->
+            <div class="section fade-in">
+                <h2>Optimized Parlay Strategies</h2>
+                <div class="parlays-container">
+                    
+            <div class="parlay-card">
+                <div class="parlay-header">
+                    <div class="parlay-rank">#1 PARLAY</div>
+                    <div class="risk-badge risk-low">LOW RISK</div>
+                </div>
+
+                <div class="parlay-metrics">
+                    <div class="metric">
+                        <div class="metric-value">12.3x</div>
+                        <div class="metric-label">Payout</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">100%</div>
+                        <div class="metric-label">Confidence</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">5.443</div>
+                        <div class="metric-label">Score</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">2.5</div>
+                        <div class="metric-label">Rec. Units</div>
+                    </div>
+                </div>
+
+                <div class="parlay-legs">
+                    <div class="parlay-leg">🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</div><div class="parlay-leg">🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</div><div class="parlay-leg">🏈 Miami (OH) RedHawks vs Rutgers Scarlet Knights: Miami (OH) RedHawks +15.5</div><div class="parlay-leg">🏈 Fresno State Bulldogs vs Oregon State Beavers: Fresno State Bulldogs +1.5</div>
+                </div>
+
+                <p><strong>Strategy:</strong> Higher risk/reward play combining strong analytical edges</p>
+            </div>
+            
+            <div class="parlay-card">
+                <div class="parlay-header">
+                    <div class="parlay-rank">#2 PARLAY</div>
+                    <div class="risk-badge risk-low">LOW RISK</div>
+                </div>
+
+                <div class="parlay-metrics">
+                    <div class="metric">
+                        <div class="metric-value">12.3x</div>
+                        <div class="metric-label">Payout</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">100%</div>
+                        <div class="metric-label">Confidence</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">5.443</div>
+                        <div class="metric-label">Score</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">2.5</div>
+                        <div class="metric-label">Rec. Units</div>
+                    </div>
+                </div>
+
+                <div class="parlay-legs">
+                    <div class="parlay-leg">🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</div><div class="parlay-leg">🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</div><div class="parlay-leg">🏈 Miami (OH) RedHawks vs Rutgers Scarlet Knights: Miami (OH) RedHawks +15.5</div><div class="parlay-leg">🏈 Fresno State Bulldogs vs Oregon State Beavers: OVER 44.5</div>
+                </div>
+
+                <p><strong>Strategy:</strong> Higher risk/reward play combining strong analytical edges</p>
+            </div>
+            
+            <div class="parlay-card">
+                <div class="parlay-header">
+                    <div class="parlay-rank">#3 PARLAY</div>
+                    <div class="risk-badge risk-low">LOW RISK</div>
+                </div>
+
+                <div class="parlay-metrics">
+                    <div class="metric">
+                        <div class="metric-value">12.3x</div>
+                        <div class="metric-label">Payout</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">100%</div>
+                        <div class="metric-label">Confidence</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">5.431</div>
+                        <div class="metric-label">Score</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">2.5</div>
+                        <div class="metric-label">Rec. Units</div>
+                    </div>
+                </div>
+
+                <div class="parlay-legs">
+                    <div class="parlay-leg">🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</div><div class="parlay-leg">🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</div><div class="parlay-leg">🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</div><div class="parlay-leg">🏈 Miami (OH) RedHawks vs Rutgers Scarlet Knights: Miami (OH) RedHawks +15.5</div>
+                </div>
+
+                <p><strong>Strategy:</strong> Higher risk/reward play combining strong analytical edges</p>
+            </div>
+            
+            <div class="parlay-card">
+                <div class="parlay-header">
+                    <div class="parlay-rank">#4 PARLAY</div>
+                    <div class="risk-badge risk-low">LOW RISK</div>
+                </div>
+
+                <div class="parlay-metrics">
+                    <div class="metric">
+                        <div class="metric-value">12.3x</div>
+                        <div class="metric-label">Payout</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">100%</div>
+                        <div class="metric-label">Confidence</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">5.431</div>
+                        <div class="metric-label">Score</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">2.5</div>
+                        <div class="metric-label">Rec. Units</div>
+                    </div>
+                </div>
+
+                <div class="parlay-legs">
+                    <div class="parlay-leg">🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</div><div class="parlay-leg">🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</div><div class="parlay-leg">🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</div><div class="parlay-leg">🏈 Fresno State Bulldogs vs Oregon State Beavers: Fresno State Bulldogs +1.5</div>
+                </div>
+
+                <p><strong>Strategy:</strong> Higher risk/reward play combining strong analytical edges</p>
+            </div>
+            
+            <div class="parlay-card">
+                <div class="parlay-header">
+                    <div class="parlay-rank">#5 PARLAY</div>
+                    <div class="risk-badge risk-low">LOW RISK</div>
+                </div>
+
+                <div class="parlay-metrics">
+                    <div class="metric">
+                        <div class="metric-value">12.3x</div>
+                        <div class="metric-label">Payout</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">100%</div>
+                        <div class="metric-label">Confidence</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">5.431</div>
+                        <div class="metric-label">Score</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">2.5</div>
+                        <div class="metric-label">Rec. Units</div>
+                    </div>
+                </div>
+
+                <div class="parlay-legs">
+                    <div class="parlay-leg">🏈 Grambling Tigers vs Ohio State Buckeyes: Grambling Tigers +55.0</div><div class="parlay-leg">🏈 Oklahoma State Cowboys vs Oregon Ducks: Oklahoma State Cowboys +28.5</div><div class="parlay-leg">🏈 East Tennessee State Buccaneers vs Tennessee Volunteers: East Tennessee State Buccaneers +40.0</div><div class="parlay-leg">🏈 Fresno State Bulldogs vs Oregon State Beavers: OVER 44.5</div>
+                </div>
+
+                <p><strong>Strategy:</strong> Higher risk/reward play combining strong analytical edges</p>
+            </div>
+            
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="disclaimer">
+                <p><strong>IMPORTANT DISCLAIMER:</strong> This analysis is for educational and entertainment purposes only. Sports betting involves substantial risk. Never bet money you cannot afford to lose. If you have a gambling problem, seek help immediately.</p>
+                <p style="margin-top: 15px; font-size: 0.8rem; opacity: 0.7;">Data sources: ESPN API, Sports Reference, OpenWeatherMap | Generated: 2025-09-06 15:21:18</p>
+            </div>
+        </div>
+
+        <script>
+            // Enhanced interactive elements
+            document.querySelectorAll('.game-card, .bet-card, .parlay-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                    this.style.transition = 'transform 0.3s ease';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
             });
-        });
-    </script>
-</body>
-</html>
+
+            // Animate confidence bars on load
+            setTimeout(() => {
+                document.querySelectorAll('.confidence-fill').forEach(bar => {
+                    const targetWidth = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = targetWidth;
+                    }, 200);
+                });
+            }, 1000);
+
+            // Auto-refresh notification
+            setTimeout(() => {
+                if (confirm('Data is 30 minutes old. Refresh for latest odds and analysis?')) {
+                    window.location.reload();
+                }
+            }, 1800000); // 30 minutes
+
+            // Add loading states
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.fade-in').forEach((el, index) => {
+                    el.style.animationDelay = `${index * 0.1}s`;
+                });
+            });
+        </script>
+    </body>
+    </html>
